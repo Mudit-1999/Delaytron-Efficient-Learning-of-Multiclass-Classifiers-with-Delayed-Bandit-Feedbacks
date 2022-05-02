@@ -1,4 +1,3 @@
-# Following banditron ( without pegasos like updates simple banditron)
 import os
 from typing import *
 import numpy as np
@@ -8,7 +7,6 @@ import numba as nb
 import pandas as pd
 from numba import jit,float32,int32 
 import types
-# from numba.experimental import jitclass
 import pickle
 import numpy as np
 from collections import defaultdict
@@ -62,13 +60,9 @@ def Run(
 
   weight_matrix=np.zeros((k,d))
   updates=np.zeros((size+2*time_skip,k,d))
-  cnt=np.zeros(size+2*time_skip)
   incorrect_classified=0
   error_rate=0
   correct_classified=0
-  m_t=0
-  recieved_till_now=0
-  e=0
   error_rate_list=np.zeros((size))
   for i in range(0,size):
     num=random.randint(0,data.shape[0]-1)
@@ -90,18 +84,14 @@ def Run(
 
     fb_t=i+np.random.randint(0,time_skip, size=1)[0]
     fb=feedback(true_label,y_tilde)
-    cnt[fb_t]=cnt[fb_t]+1;
-    recieved_till_now =recieved_till_now + cnt[i] 
-    m_t= i+1 - recieved_till_now
-    if m_t >= power(2.0,e):
-      e=e+1
 
     basis_vec=np.zeros((k,1))
     if fb==1:
       basis_vec[y_tilde,0]+=1/(prob[y_tilde])
     basis_vec[y_hat,0]-=1
     updates[fb_t]+= np.kron(basis_vec,feature_vector.T)
-    weight_matrix=weight_matrix +  (np.sqrt(power(2.0,-e)))*updates[i]
+    weight_matrix=weight_matrix + updates[i]
+
   return error_rate_list
 
 
@@ -126,7 +116,7 @@ if __name__=="__main__":
   prefix=f"/home/{os.getenv('USER')}/exp/dataset"
 # Dataset 
   # SynSep Data
-  if args.data=='synsep':
+  elif args.data=='synsep':
     data=np.load(f'{prefix}/syn_sep.npy','r')
   # SynNonSep Data
   elif args.data=='synnonsep':
@@ -147,14 +137,12 @@ if __name__=="__main__":
     data=np.load(f'{prefix}/ecoli.npy','r')
   elif args.data=='abalone':
     data=np.load(f'{prefix}/abalone.npy','r')
-  elif args.data=='mnist':
-    data=np.load(f'{prefix}/mnist.npy','r')
   elif args.data=='cifar10':
     data=np.load(f'{prefix}/cifar10.npy','r')
   elif args.data=='digits':
     d1 = load_digits()
     data = np.hstack( (d1.data,d1.target.reshape(-1,1)))
-  # print(data.shape)  
+
   data=np.float64(data)
 
 
@@ -196,7 +184,7 @@ if __name__=="__main__":
     avg_max_norm=0
     for exp in g_val:
       t0= time.perf_counter()
-      with concurrent.futures.ProcessPoolExecutor(max_workers=20) as executor:
+      with concurrent.futures.ProcessPoolExecutor() as executor:
           output = [executor.submit(Run,k, d, size, exp,ts)for _ in range(0,repition)]
           results = [f.result() for f in concurrent.futures.as_completed(output)]
       t1 = round(time.perf_counter() - t0,2)
@@ -206,7 +194,7 @@ if __name__=="__main__":
       avg_time=t1/repition
       avg_final_list[0]=final_list.mean(axis=0)
       avg_final_list[1]=final_list.std(axis=0)
-      print(f"{20} Runs Completed for gamma:{exp} and time_skip:{ts} with error_rate {avg_final_list[0,-1]} in {avg_time} seconds")
+      print(f"Run completed for gamma:{exp} and time_skip:{ts} with error_rate {avg_final_list[0,-1]} in {avg_time} seconds")
       
       data_dict['ts'].append(ts)
       data_dict['gamma'].append(exp)
@@ -236,5 +224,4 @@ if __name__=="__main__":
 
   df=pd.DataFrame.from_dict(data_dict)
   df.to_parquet(cwd+'/data.parquet')
-
 
