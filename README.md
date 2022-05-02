@@ -4,8 +4,9 @@ In this paper, we present online algorithm called {\it Delaytron} for learning m
 
 First set the path of the data folder in Delaytron.py 
 Then for running experiments for particular dataset say (fashion-mnist), run the following command in the terminal
-
-# python3 Delaytron.py.py --data 'fashion' --dim 100 --num_class 10
+```
+python3 Delaytron.py.py --data 'fashion' --dim 100 --num_class 10
+```
 This will create a folder named fashion (contains datafiles for plotting error curves) To plot results (uncommnet the name of dataset for which error rates are to be plotted)
 
 python3 plot.py
