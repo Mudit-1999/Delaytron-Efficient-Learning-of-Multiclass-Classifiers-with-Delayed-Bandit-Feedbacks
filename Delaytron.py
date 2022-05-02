@@ -125,12 +125,8 @@ if __name__=="__main__":
   # path to the dataset directory 
   prefix=f"/home/{os.getenv('USER')}/exp/dataset"
 # Dataset 
-  # Iris Data
-  if args.data=='iris':
-    d1 = load_iris()
-    data = np.hstack( (d1.data,d1.target.reshape(-1,1)))
   # SynSep Data
-  elif args.data=='synsep':
+  if args.data=='synsep':
     data=np.load(f'{prefix}/syn_sep.npy','r')
   # SynNonSep Data
   elif args.data=='synnonsep':
@@ -149,22 +145,12 @@ if __name__=="__main__":
     data=np.array(dataset)
   elif args.data=='ecoli':
     data=np.load(f'{prefix}/ecoli.npy','r')
-  elif args.data=='sat':
-    data=np.load(f'{prefix}/sat.npy','r')
   elif args.data=='abalone':
     data=np.load(f'{prefix}/abalone.npy','r')
   elif args.data=='mnist':
     data=np.load(f'{prefix}/mnist.npy','r')
   elif args.data=='cifar10':
     data=np.load(f'{prefix}/cifar10.npy','r')
-  elif args.data=='mnist100':
-    data=np.load(f'{prefix}/mnist100.npy','r')
-  # New 4 Group dataset 
-  elif args.data=='news4':
-    data=np.load(f'{prefix}/news20.npy','r')
-  elif args.data=='wine':
-    d1 = load_wine()
-    data = np.hstack( (d1.data,d1.target.reshape(-1,1)))
   elif args.data=='digits':
     d1 = load_digits()
     data = np.hstack( (d1.data,d1.target.reshape(-1,1)))
